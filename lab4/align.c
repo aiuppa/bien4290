@@ -11,6 +11,11 @@ typedef struct costMatrix{
   int rows;
   int cols;
 } CostMatrix
+  
+int getMatchCost(char s_i, char t_j){
+  if(s_i==t_j) return 0;
+  return 1;
+}
 
 int getCost(CostMatrix mat, int row, int col){
   return mat.cost[row*mat.cols+col];
@@ -30,61 +35,108 @@ int minimum(int c0, int c1, int c2){
   }
 }
 
-void printMatrix(int **matrix, int rows, int cols){
-  printf("_|_0_|");
-  for(j=0;j<cols-1;++j)
-    printf("_%c_|",t[j]);
-  printf("\n0");
-  for(i=0;i<rows;++i){
-    for(j=0;j<cols;++j){
-      printf("|%3i",matrix[i][j]);
+//void printMatrix(int **matrix, int rows, int cols){
+//  printf("_|_0_|");
+//  for(j=0;j<cols-1;++j)
+//    printf("_%c_|",t[j]);
+//  printf("\n0");
+//  for(i=0;i<rows;++i){
+//    for(j=0;j<cols;++j){
+//      printf("|%3i",matrix[i][j]);
+//    }
+//    printf("|\n");
+//    printf("%c",s[i]);
+//  }
+//}
+
+void printMatrix(CostMatrix mat){
+  unsigned int row, col;
+  for(row=0;row<mat.rows;++row){
+    for(col=0;col<mat.cols;++col){
+      printf("%i",getCost(mat,row,col);
     }
-    printf("|\n");
-    printf("%c",s[i]);
+    printf("\n");
   }
 }
 
-int getMatchCost(char s_i, char t_j){
-  if(s_i==t_j) return 0;
-  return 1;
+void trace(CostMatrix mat, int row, int col, char *s, char *t, char *align1, char *align2, int i, int j){
+  char a1[200], a2[200];
+  int cost, left, diag, up, matchCost;
+  
+  strcpy(a1, align1);
+  strcpy(a2, align2);
+  
+  if (row==1 && col==1){
+    print("%s\n%s\n\n", a1, a2);
+    return;
+  }
+  
+  cost = get_cost(mat,row,col);
+  left = get_cost(mat, row, col-1);
+  diag = get_cost(mat, row-1, col-1);
+  up   = get_cost(mat, row-1, col);
+  matchCost = getMatchCost(s[col-1],t[row-1]);
+  
+  if(left+1 == cost) {
+    a1[i--] = '_';
+    a2[j--] = t[row-1];
+    trace_back(mat,row,col-1,s,t,a1,a2,i,j);
+  }
+  else if(diag+matchCost == cost) {
+    a1[i--] = s[col-1];
+    a2[j--] = t[row-1];
+    trace_back(mat,row-1,col-1,s,t,a1,a2,i,j);
+  }
+  else if(up+1 == cost) {
+    a1[i--] = s[col-1];
+    a2[j--] = t[row-1];
+  }
 }
 
-int main(void){
-  unsigned int rows=0, cols=0;
-  int length1=0, length2=0, c_ij=0; //n: length of string1, m: length of string2
+int main(int argc, char **argv){
+  unsigned int row=0, col=0;
+  int length1=0, length2=0, alignLength=0, c_ij=0;
+  CostMatrix mat;
   //FILE* out;
   
-  /* enter lengths of strings and the strings */
-//printf("INPUTS:\n\tLength of string 1:\n\tString 1:\n\tLength of string 2:\n\tString 2:\n");
-  scanf("%i",&length1);
-  char *s = (char*)malloc(length1*sizeof(char));
-  scanf("%s",s);
-  scanf("%i",&length2);
-  char *t = (char*)malloc(length2*sizeof(char));
-  scanf("%s",t);
-  
-  /* initialize the cost matrix */
-  rows=length1+1;
-  cols=length2+1;
-  int **cost=(int **)malloc(rows*sizeof(int *));
-  for(i=0;i<rows;i++){
-    cost[i]=(int *)malloc(cols*sizeof(int));
+  if(argc!=5){
+    printf("%s", argv[0]);
+    exit(EXIT_FAILURE);
   }
   
+  length1=atoi(argv[1]);
+  length2=atoi(argv[3]);
+  if(length1 > length2) alignLength=length1;
+  else alignLength=length2;
+  
+  char *align1 = (char*)malloc(sizeof(char)*alignLength);
+  char *align2 = (char*)malloc(sizeof(char)*alignLength);
+  char *s = (char*)malloc(sizeof(char)*length1);
+  char *t = (char*)malloc(sizeof(char)*length2);
+  
+  strcpy(s,argv[2]);
+  strcpy(t,argv[4]);
+  
+  /* initialize the cost matrix */
+  mat.cost=(unsigned int*)malloc(sizeof(unsigned int)*(length1+1)*(length2+1));
+  mat.rows=length1+1;
+  mat.cols=length2+1;
   /* fill the cost matrix */
-  for(i=0;i<rows;++i){
-    cost[i][0]=i;
-    for(j=1;j<cols;++j){
+  for(i=0;i<mat.rows;++i){
+    setCost(mat,i,0,i);
+    for(j=1;j<mat.cols;++j){
       if(i==0){ 
-        cost[i][j]=j;
+        setCost(mat,i,j,j);
         continue;
       }
-      cost[i][j]=minimum(cost[i-1][j-1]+getMatchCost(s[i],t[j]),cost[i-1][j]+1,cost[i][j-1]+1);
+      setCost(mat,i,j,minimum(getCost(mat,i-1,j-1)+getMatchCost(s[i],t[j]),getCost(mat,i-1,j)+1,getCost(mat,i,j-1)+1));
     }
   }
   
   /* print the cost matrix */
-  printMatrix(cost, rows, cols);
+  //printMatrix(cost, rows, cols);
+  printMatrix(mat);
+  trace(mat,length1,length2,s,t,align1,align2,alignLength-1,alignLength-1);
   
   /* output results */
   //out=fopen("cost_matrix_out.txt","w");
@@ -94,5 +146,9 @@ int main(void){
   //fprintf(out,"min cost: %i\n",cost[rows-1][cols-1]);
   ////  optimal alignment(s) output to screen and output file
   //fclose(out);
+  free(s);
+  free(t);
+  free(align1);
+  free(align2);
   return 0;
 }
