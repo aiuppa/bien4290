@@ -35,20 +35,6 @@ int minimum(int c0, int c1, int c2){
   }
 }
 
-//void printMatrix(int **matrix, int rows, int cols){
-//  printf("_|_0_|");
-//  for(j=0;j<cols-1;++j)
-//    printf("_%c_|",t[j]);
-//  printf("\n0");
-//  for(i=0;i<rows;++i){
-//    for(j=0;j<cols;++j){
-//      printf("|%3i",matrix[i][j]);
-//    }
-//    printf("|\n");
-//    printf("%c",s[i]);
-//  }
-//}
-
 void printMatrix(CostMatrix mat){
   unsigned int row, col;
   for(row=0;row<mat.rows;++row){
@@ -72,24 +58,20 @@ void trace(CostMatrix mat, int row, int col, char *s, char *t, char *align1, cha
   }
   
   cost = get_cost(mat,row,col);
-  left = get_cost(mat, row, col-1);
-  diag = get_cost(mat, row-1, col-1);
-  up   = get_cost(mat, row-1, col);
   matchCost = getMatchCost(s[col-1],t[row-1]);
   
-  if(left+1 == cost) {
+  if(get_cost(mat,row,col-1)+1 == cost) { //left origin
     a1[i--] = '_';
     a2[j--] = t[row-1];
-    trace_back(mat,row,col-1,s,t,a1,a2,i,j);
-  }
-  else if(diag+matchCost == cost) {
+    trace(mat,row,col-1,s,t,a1,a2,i,j);
+  } else if(get_cost(mat,row-1,col-1)+matchCost == cost) {  //diagonal origin
     a1[i--] = s[col-1];
     a2[j--] = t[row-1];
-    trace_back(mat,row-1,col-1,s,t,a1,a2,i,j);
-  }
-  else if(up+1 == cost) {
+    trace(mat,row-1,col-1,s,t,a1,a2,i,j);
+  } else if(get_cost(mat,row-1,col)+1 == cost) {   //above origin
     a1[i--] = s[col-1];
     a2[j--] = t[row-1];
+    trace(mat,row-1,col,s,t,a1,a2,i,j);
   }
 }
 
@@ -134,7 +116,6 @@ int main(int argc, char **argv){
   }
   
   /* print the cost matrix */
-  //printMatrix(cost, rows, cols);
   printMatrix(mat);
   trace(mat,length1,length2,s,t,align1,align2,alignLength-1,alignLength-1);
   
