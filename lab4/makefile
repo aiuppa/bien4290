@@ -1,5 +1,5 @@
 #makefile
 all: align.exe
 
-align.exe: align.c
-	gcc -g -o align.exe align.c -lm
+align.exe: costMat.c align.c
+	gcc -g -o align.exe costMat.c align.c -lm
