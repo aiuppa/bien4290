@@ -3,10 +3,11 @@
 #include <string.h>
 #include "costMat.h"
 
-void trace(CostMatrix mat, int row, int col, char *s, char *t, char *alignS, char *alignT, int i, int j, int c_ij){
+void trace(CostMatrix mat, int row, int col, char *s, char *t, char *alignS, char *alignT, int i, int j, int c_ij, FILE *out){
   
   if (row==0 && col==0){
     printf("%s\t%s\n", alignS, alignT);
+    fprintf(out,"%s\t%s\n", alignS, alignT);
     return;
   }
   
@@ -15,15 +16,15 @@ void trace(CostMatrix mat, int row, int col, char *s, char *t, char *alignS, cha
   if(getCost(mat,row-1,col)+1 == c_ij) {   //above origin
     alignS[--i] = s[row-1];
     alignT[--j] = '_';
-    trace(mat,row-1,col,s,t,alignS,alignT,i,j,getCost(mat,row-1,col));
+    trace(mat,row-1,col,s,t,alignS,alignT,i,j,getCost(mat,row-1,col),out);
   } else if(getCost(mat,row-1,col-1)+getMatchCost(s[row-1],t[col-1]) == c_ij) {  //diagonal origin
     alignS[--i] = s[row-1];
     alignT[--j] = t[col-1];
-    trace(mat,row-1,col-1,s,t,alignS,alignT,i,j,getCost(mat,row-1,col-1));
+    trace(mat,row-1,col-1,s,t,alignS,alignT,i,j,getCost(mat,row-1,col-1),out);
   } else if(getCost(mat,row,col-1)+1 == c_ij) { //left origin
     alignS[--i] = '_';
     alignT[--j] = t[col-1];
-    trace(mat,row,col-1,s,t,alignS,alignT,i,j,getCost(mat,row,col-1));
+    trace(mat,row,col-1,s,t,alignS,alignT,i,j,getCost(mat,row,col-1),out);
   }
 }
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv){
   unsigned int row=0, col=0;
   int length1=0, length2=0, alignLength=0, c_ij=0, c_min=0;
   CostMatrix mat;
-  //FILE* out;
+  FILE* out;
   
   if(argc!=5){
     printf("%s", argv[0]);
@@ -70,23 +71,13 @@ int main(int argc, char **argv){
   c_min=c_ij;
   
   /* print the cost matrix */
-  printMatrix(mat);
+  out = fopen("cost_matrix_out.txt","w");
+  printMatrix(mat,out);
   printf("min cost: %i\n",c_min);
-  trace(mat,length1,length2,s,t,align1,align2,alignLength,alignLength,c_min);
+  fprintf(out,"min cost: %i\n",c_min);
+  trace(mat,length1,length2,s,t,align1,align2,alignLength,alignLength,c_min,out);
   
-  /* output results */
-  //out=fopen("cost_matrix_out.txt","w");
-  ////  each row of cost matrix on its own line
-  //for(row=0;row<mat.rows;++row){
-  //  for(col=0;col<mat.cols;++col){
-  //    fprintf(out,"\t%i",getCost(mat,row,col));
-  //  }
-  //  fprintf(out,"\n");
-  //}
-  ////  minimum cost
-  //fprintf(out,"min cost: %i\n",mat.cost[length1*mat.cols+length2]);
-  ////  optimal alignment(s) output to screen and output file
-  //fclose(out);
+  fclose(out);
   free(s);
   free(t);
   free(align1);

@@ -6,4 +6,6 @@ fi
 lengthS=${#1}
 lengthT=${#2}
 
+#(echo $lengthS;echo $1;echo $lengthT;echo $2;) | (./align.exe)
+
 (./align.exe $lengthS $1 $lengthT $2)

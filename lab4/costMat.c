@@ -1,6 +1,4 @@
 #include "costMat.h"
-#include <stdio.h>
-#include <stdlib.h>
   
 int getMatchCost(char s_i, char t_j){
   if(s_i==t_j) return 0;
@@ -25,12 +23,14 @@ int minimumOf3(int c0, int c1, int c2){
   }
 }
 
-void printMatrix(CostMatrix mat){
+void printMatrix(CostMatrix mat, FILE *out){
   unsigned int row, col;
   for(row=0;row<mat.rows;++row){
     for(col=0;col<mat.cols;++col){
       printf("\t%i",getCost(mat,row,col));
+      fprintf(out,"\t%i",getCost(mat,row,col));
     }
     printf("\n");
+    fprintf(out,"\n");
   }
 }
