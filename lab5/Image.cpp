@@ -10,11 +10,23 @@ void Image::init(int nr, int nc){
 //allocate
   data = new float[num_rows*num_cols](0.0);  //initialize to 0
 }
-  
+
+void Image::areIndecesValid(int row, int col){
+  if(row<0 || row>=num_rows){
+    std::cerr<<"row out of range\n";
+    exit(EXIT_FAILURE);
+  }
+  if(col<0 || col>=num_cols){
+    std::cerr<<"col out of range\n";
+    exit(EXIT_FAILURE);
+  }
+}
+
 Image::Image(int nr, int nc){  init(nr,nc);  }
 
+Image::~Image(){  delete[] data;  }
+
 Image::Image(const Image & im){
-  //Image(im.num_rows,im.num_cols); // would this work??
   //init(im.num_rows,im.num_cols);  // this might do desired func
   num_rows = im.num_rows;
   num_cols = im.num_cols;
@@ -25,4 +37,47 @@ Image::Image(const Image & im){
   }
 }
 
-Image::~Image(){  delete[] data;  }
+Image& Image::operator=(cost String& im){
+  if(this==&im) return *this;  //checks to make sure you didn't call im=im
+  delete[] data;
+  init(im.num_rows,im.num_cols);
+  for(int i=0; i<num_rows*num_cols;++i){
+    data[i]=im.data[i];
+  }
+  return *this;
+}
+
+int Image::getNumRows(){
+  return num_rows;
+}
+
+int Image::getNumCols(){
+  return num_cols;
+}
+
+float Image::getVal(int row, int col){
+  areIndecesValid(row,col);
+  return (data[col*num_cols+row]);
+}
+
+void Image::setVal(int row, int col, float val){
+  areIndecesValid(row,col);
+  data[col*num_cols+row]=val;
+}
+
+
+void Image::readImage(char* filename){
+  std::ifstream infile(filename, std::ios::in|std::ios::binary);
+  if(infile.is_open()){
+    infile.read((char*)data, num_rows*num_cols*4);
+    infile.close();
+  } else std::cout<< "Unable to read " << filename << "\n";
+}
+
+void Image::writeImage(char* filename){
+  std::ofstream outfile(filename, std::ios::out|std::ios::binary);
+  if(outfile.is_open()){
+    outfile.write((char*)data, num_rows*num_cols*4);
+    outfile.close();
+  } else std::cout<< "Unable to write to "<< filename<<"\n";
+}

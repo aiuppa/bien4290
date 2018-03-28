@@ -6,9 +6,17 @@
       float *data;
     public:
       Image(int nr, int nc);
-      Image(const Image & im);
-      ~Image(); //destructor
+      ~Image();                           //destructor
+      Image(const Image & im);            //copy constructor
+      Image & operator=(cost Image & im); //assignment
+      int getNumRows();
+      int getNumCols();
+      float getVal(int row, int col);
+      void setVal(int row, int col, float val);
+      void readImage(char* filename);
+      void writeImage(char* filename);
     private:
       void init(int nr, int nc);
+      void areIndecesValid(int row, int col);
   }
 #endif
