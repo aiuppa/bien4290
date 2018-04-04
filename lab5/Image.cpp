@@ -8,7 +8,7 @@ void Image::init(int nr, int nc){
   num_rows = nr;
   num_cols = nc;
 //allocate
-  data = new float[num_rows*num_cols](0.0);  //initialize to 0
+  data = new float[num_rows*num_cols]();  //initialize to 0
 }
 
 void Image::areIndecesValid(int row, int col){
@@ -37,7 +37,7 @@ Image::Image(const Image & im){
   }
 }
 
-Image& Image::operator=(cost String& im){
+Image & Image::operator=(const Image & im){
   if(this==&im) return *this;  //checks to make sure you didn't call im=im
   delete[] data;
   init(im.num_rows,im.num_cols);

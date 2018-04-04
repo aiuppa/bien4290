@@ -8,7 +8,7 @@
       Image(int nr, int nc);
       ~Image();                           //destructor
       Image(const Image & im);            //copy constructor
-      Image & operator=(cost Image & im); //assignment
+      Image & operator=(const Image & im); //assignment
       int getNumRows();
       int getNumCols();
       float getVal(int row, int col);
@@ -18,5 +18,5 @@
     private:
       void init(int nr, int nc);
       void areIndecesValid(int row, int col);
-  }
+  };
 #endif
